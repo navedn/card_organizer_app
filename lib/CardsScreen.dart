@@ -36,11 +36,17 @@ class CardsScreen extends StatelessWidget {
                 return ListTile(
                   title: Text(cards[index][DatabaseHelper.cardName]),
                   subtitle: Text(cards[index][DatabaseHelper.cardSuit]),
-                  leading: Container(
+                  leading: Image.asset(
+                    cards[index]
+                        [DatabaseHelper.cardImageUrl], // Load image from asset
+
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(
+                          Icons.abc); // Fallback icon if the image isn't found
+                    },
                     width: 50,
                     height: 50,
-                    color: Colors.grey, // You can customize this placeholder
-                    child: Icon(Icons.image), // Placeholder icon
+                    fit: BoxFit.cover,
                   ),
                 );
               },

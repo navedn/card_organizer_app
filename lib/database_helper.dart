@@ -86,20 +86,88 @@ CREATE TABLE $cardsTable (
       'Clubs': 4,
     };
 
-    // Insert cards (1-13 for each suit)
-    for (String suit in suits) {
-      for (int i = 1; i <= 13; i++) {
-        String cardName = _getCardName(i);
-        String imageUrl =
-            'https://picsum.photos/250?image=9'; // Example URL format
-        cards.add({
-          DatabaseHelper.cardName: cardName, // Use 'name' or cardName constant
-          DatabaseHelper.cardSuit: suit,
-          DatabaseHelper.cardImageUrl: imageUrl,
-          DatabaseHelper.cardFolderId: folderIds[suit],
-        });
-      }
-    }
+    // Adds hearts
+    cards.add({
+      DatabaseHelper.cardName:
+          "Ace of Hearts", // Use 'name' or cardName constant
+      DatabaseHelper.cardSuit: "Hearts",
+      DatabaseHelper.cardImageUrl: "assets/images/Hearts/htile000.png",
+      DatabaseHelper.cardFolderId: folderIds["Hearts"],
+    });
+    cards.add({
+      DatabaseHelper.cardName: "2 of Hearts", // Use 'name' or cardName constant
+      DatabaseHelper.cardSuit: "Hearts",
+      DatabaseHelper.cardImageUrl: "assets/images/Hearts/htile001.png",
+      DatabaseHelper.cardFolderId: folderIds["Hearts"],
+    });
+    cards.add({
+      DatabaseHelper.cardName: "3 of Hearts", // Use 'name' or cardName constant
+      DatabaseHelper.cardSuit: "Hearts",
+      DatabaseHelper.cardImageUrl: "assets/images/Hearts/htile002.png",
+      DatabaseHelper.cardFolderId: folderIds["Hearts"],
+    });
+    // Spades
+    cards.add({
+      DatabaseHelper.cardName:
+          "Ace of Spades", // Use 'name' or cardName constant
+      DatabaseHelper.cardSuit: "Spades",
+      DatabaseHelper.cardImageUrl: "assets/images/Spades/Stile000.png",
+      DatabaseHelper.cardFolderId: folderIds["Spades"],
+    });
+    cards.add({
+      DatabaseHelper.cardName: "2 of Spades", // Use 'name' or cardName constant
+      DatabaseHelper.cardSuit: "Spades",
+      DatabaseHelper.cardImageUrl: "assets/images/Spades/Stile001.png",
+      DatabaseHelper.cardFolderId: folderIds["Spades"],
+    });
+    cards.add({
+      DatabaseHelper.cardName: "3 of Spades", // Use 'name' or cardName constant
+      DatabaseHelper.cardSuit: "Spades",
+      DatabaseHelper.cardImageUrl: "assets/images/Spades/Stile002.png",
+      DatabaseHelper.cardFolderId: folderIds["Spades"],
+    });
+    // Diamonds
+    cards.add({
+      DatabaseHelper.cardName:
+          "Ace of Diamonds", // Use 'name' or cardName constant
+      DatabaseHelper.cardSuit: "Diamonds",
+      DatabaseHelper.cardImageUrl: "assets/images/Diamonds/Dtile000.png",
+      DatabaseHelper.cardFolderId: folderIds["Diamonds"],
+    });
+    cards.add({
+      DatabaseHelper.cardName:
+          "2 of Diamonds", // Use 'name' or cardName constant
+      DatabaseHelper.cardSuit: "Diamonds",
+      DatabaseHelper.cardImageUrl: "assets/images/Diamonds/Dtile001.png",
+      DatabaseHelper.cardFolderId: folderIds["Diamonds"],
+    });
+    cards.add({
+      DatabaseHelper.cardName:
+          "3 of Diamonds", // Use 'name' or cardName constant
+      DatabaseHelper.cardSuit: "Diamonds",
+      DatabaseHelper.cardImageUrl: "assets/images/Diamonds/Dtile002.png",
+      DatabaseHelper.cardFolderId: folderIds["Diamonds"],
+    });
+    // Clubs
+    cards.add({
+      DatabaseHelper.cardName:
+          "Ace of Clubs", // Use 'name' or cardName constant
+      DatabaseHelper.cardSuit: "Clubs",
+      DatabaseHelper.cardImageUrl: "assets/images/Clubs/Ctile000.png",
+      DatabaseHelper.cardFolderId: folderIds["Clubs"],
+    });
+    cards.add({
+      DatabaseHelper.cardName: "2 of Clubs", // Use 'name' or cardName constant
+      DatabaseHelper.cardSuit: "Clubs",
+      DatabaseHelper.cardImageUrl: "assets/images/Clubs/Ctile001.png",
+      DatabaseHelper.cardFolderId: folderIds["Clubs"],
+    });
+    cards.add({
+      DatabaseHelper.cardName: "3 of Clubs", // Use 'name' or cardName constant
+      DatabaseHelper.cardSuit: "Clubs",
+      DatabaseHelper.cardImageUrl: "assets/images/Clubs/Ctile002.png",
+      DatabaseHelper.cardFolderId: folderIds["Clubs"],
+    });
 
     // Bulk insert cards into the database
     for (var card in cards) {
