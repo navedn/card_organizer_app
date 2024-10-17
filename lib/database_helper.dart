@@ -93,10 +93,10 @@ CREATE TABLE $cardsTable (
         String imageUrl =
             'https://example.com/images/$cardName-of-$suit.png'; // Example URL format
         cards.add({
-          cardName: cardName,
-          cardSuit: suit,
-          cardImageUrl: imageUrl,
-          cardFolderId: folderIds[suit],
+          DatabaseHelper.cardName: cardName, // Use 'name' or cardName constant
+          DatabaseHelper.cardSuit: suit,
+          DatabaseHelper.cardImageUrl: imageUrl,
+          DatabaseHelper.cardFolderId: folderIds[suit],
         });
       }
     }
@@ -124,4 +124,94 @@ CREATE TABLE $cardsTable (
   }
 
   // TODO: Other CRUD methods (insert, query, update, delete) remain the same, must be implemented.
+
+  // First Helper Method: Create Folder, inserts a new folder to the database.
+  Future<int> insertFolder(String name) async {
+    final timestamp = DateTime.now().toIso8601String();
+    Map<String, dynamic> row = {
+      folderName: name,
+      folderTimestamp: timestamp,
+    };
+    return await _db.insert(folderTable, row);
+  }
+
+  // Create Card, inserts a new card into the folder
+  Future<int> insertCard(
+      String name, String suit, String imageUrl, int folderId) async {
+    Map<String, dynamic> row = {
+      cardName: name,
+      cardSuit: suit,
+      cardImageUrl: imageUrl,
+      cardFolderId: folderId,
+    };
+    return await _db.insert(cardsTable, row);
+  }
+
+  // Fetch all folders
+  Future<List<Map<String, dynamic>>> getFolders() async {
+    return await _db.query(folderTable);
+  }
+
+  // Fetch Cards in a Folder
+  Future<List<Map<String, dynamic>>> getCardsInFolder(int folderId) async {
+    return await _db.query(
+      cardsTable,
+      where: '$cardFolderId = ?',
+      whereArgs: [folderId],
+    );
+  }
+
+  // Update folder details
+  Future<int> updateFolder(int id, String newName) async {
+    Map<String, dynamic> row = {
+      folderName: newName,
+      folderTimestamp: DateTime.now().toIso8601String(),
+    };
+    return await _db.update(
+      folderTable,
+      row,
+      where: '$folderId = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // Update card details
+  Future<int> updateCard(int cardId, String newName, int newFolderId) async {
+    Map<String, dynamic> row = {
+      cardName: newName,
+      cardFolderId: newFolderId,
+    };
+    return await _db.update(
+      cardsTable,
+      row,
+      where: '$cardId = ?',
+      whereArgs: [cardId],
+    );
+  }
+
+  // Delete folder (also deletes all cards in the folder)
+  Future<int> deleteFolder(int id) async {
+    // Delete all cards in the folder
+    await _db.delete(
+      cardsTable,
+      where: '$cardFolderId = ?',
+      whereArgs: [id],
+    );
+
+    // Delete the folder itself
+    return await _db.delete(
+      folderTable,
+      where: '$folderId = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // Delete just one card
+  Future<int> deleteCard(int id) async {
+    return await _db.delete(
+      cardsTable,
+      where: '$cardId = ?',
+      whereArgs: [id],
+    );
+  }
 }
