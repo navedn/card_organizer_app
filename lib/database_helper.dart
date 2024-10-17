@@ -91,7 +91,7 @@ CREATE TABLE $cardsTable (
       for (int i = 1; i <= 13; i++) {
         String cardName = _getCardName(i);
         String imageUrl =
-            'https://example.com/images/$cardName-of-$suit.png'; // Example URL format
+            'https://picsum.photos/250?image=9'; // Example URL format
         cards.add({
           DatabaseHelper.cardName: cardName, // Use 'name' or cardName constant
           DatabaseHelper.cardSuit: suit,

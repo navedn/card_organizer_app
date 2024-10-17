@@ -7,38 +7,44 @@ class FoldersScreen extends StatelessWidget {
 
   FoldersScreen({required this.dbHelper, Key? key}) : super(key: key);
 
-  final List<Map<String, dynamic>> folders = [
-    {'name': 'Hearts', 'id': 1},
-    {'name': 'Clubs', 'id': 2},
-    {'name': 'Spades', 'id': 3},
-    {'name': 'Diamonds', 'id': 4},
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Card Organizer'),
+        title: Text("Folders"),
       ),
-      body: ListView.builder(
-        itemCount: folders.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(folders[index]['name']),
-            onTap: () {
-              // Pass both folderID and dbHelper to the CardsScreen
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CardsScreen(
-                    folderID: folders[index]['id'],
-                    folderName: folders[index]['name'],
-                    dbHelper: dbHelper,
-                  ),
-                ),
-              );
-            },
-          );
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: dbHelper.getFolders(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No Folders Found'));
+          } else {
+            var folders = snapshot.data!;
+            return ListView.builder(
+              itemCount: folders.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(folders[index][DatabaseHelper.folderName]),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CardsScreen(
+                          folderID: folders[index][DatabaseHelper.folderId],
+                          folderName: folders[index][DatabaseHelper.folderName],
+                          dbHelper: dbHelper,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          }
         },
       ),
     );
