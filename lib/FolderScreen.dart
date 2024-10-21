@@ -20,11 +20,12 @@ class _FoldersScreenState extends State<FoldersScreen> {
     _loadFolders();
   }
 
+  // Function to load all folders from the database
   void _loadFolders() {
     _foldersFuture = widget.dbHelper.getFolders();
   }
 
-// Function to add a new folder
+  // Function to add a new folder
   Future<void> _addFolder() async {
     TextEditingController folderNameController = TextEditingController();
 
@@ -62,7 +63,7 @@ class _FoldersScreenState extends State<FoldersScreen> {
     );
   }
 
-  // Function to update a folder
+  // Function to update a folder's name
   Future<void> _updateFolder(int folderId, String currentName) async {
     TextEditingController folderNameController =
         TextEditingController(text: currentName);
@@ -87,10 +88,8 @@ class _FoldersScreenState extends State<FoldersScreen> {
               child: Text('Update'),
               onPressed: () async {
                 if (folderNameController.text.isNotEmpty) {
-                  await widget.dbHelper.updateFolder(
-                    folderId,
-                    folderNameController.text,
-                  );
+                  await widget.dbHelper
+                      .updateFolder(folderId, folderNameController.text);
                   setState(() {
                     _loadFolders();
                   });
@@ -106,17 +105,46 @@ class _FoldersScreenState extends State<FoldersScreen> {
 
   // Function to delete a folder
   Future<void> _deleteFolder(int folderId) async {
-    await widget.dbHelper.deleteFolder(folderId);
-    setState(() {
-      _loadFolders();
-    });
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Folder'),
+          content: Text('Are you sure you want to delete this folder?'),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Delete'),
+              onPressed: () async {
+                await widget.dbHelper.deleteFolder(folderId);
+                setState(() {
+                  _loadFolders();
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Folders"),
+        title: Text('Folders'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: _addFolder,
+          ),
+        ],
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _foldersFuture,
@@ -132,45 +160,45 @@ class _FoldersScreenState extends State<FoldersScreen> {
             return ListView.builder(
               itemCount: folders.length,
               itemBuilder: (context, index) {
-                return Dismissible(
-                  key: Key(folders[index][DatabaseHelper.folderId].toString()),
-                  background: Container(
-                      color: Colors.red,
-                      child: Icon(Icons.delete, color: Colors.white)),
-                  onDismissed: (direction) {
-                    _deleteFolder(folders[index][DatabaseHelper.folderId]);
-                  },
-                  child: ListTile(
-                    title: Text(folders[index][DatabaseHelper.folderName]),
-                    onTap: () {
-                      // Navigate to CardsScreen
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CardsScreen(
-                            folderID: folders[index][DatabaseHelper.folderId],
-                            folderName: folders[index]
-                                [DatabaseHelper.folderName],
-                            dbHelper: widget.dbHelper,
-                          ),
+                var folder = folders[index];
+                return ListTile(
+                  title: Text(folder[DatabaseHelper.folderName]),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () => _updateFolder(
+                          folder[DatabaseHelper.folderId],
+                          folder[DatabaseHelper.folderName],
                         ),
-                      );
-                    },
-                    onLongPress: () {
-                      // Open the update dialog
-                      _updateFolder(folders[index][DatabaseHelper.folderId],
-                          folders[index][DatabaseHelper.folderName]);
-                    },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () => _deleteFolder(
+                          folder[DatabaseHelper.folderId],
+                        ),
+                      ),
+                    ],
                   ),
+                  onTap: () {
+                    // Navigate to CardsScreen with the folderID and folderName
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CardsScreen(
+                          folderID: folder[DatabaseHelper.folderId],
+                          folderName: folder[DatabaseHelper.folderName],
+                          dbHelper: widget.dbHelper,
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             );
           }
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addFolder,
-        child: Icon(Icons.add),
       ),
     );
   }
