@@ -267,4 +267,51 @@ class DatabaseHelper {
       whereArgs: [id],
     );
   }
+
+  Future<int> moveToFolder(int cardId, int newFolderId) async {
+    print("Moving card ID $cardId to folder ID $newFolderId");
+    Map<String, dynamic> updates = {
+      cardFolderId:
+          newFolderId, // Assuming cardFolderId is the column for folder IDs
+    };
+    return await _db.update(
+      cardsTable,
+      updates,
+      where: '$cardId = ?',
+      whereArgs: [cardId],
+    );
+  }
+
+  Future<void> moveCardToDifferentFolder(int cardId, int newFolderId) async {
+    // Fetch the original card data using the correct column name
+    final originalCard = await _db.query(
+      cardsTable,
+      where:
+          '${DatabaseHelper.cardId} = ?', // Ensure you are using the column name here
+      whereArgs: [cardId],
+    );
+
+    if (originalCard.isNotEmpty) {
+      // Get original card data with proper type casting
+      final originalCardData = originalCard.first;
+      String cardName =
+          (originalCardData[DatabaseHelper.cardName] as String?) ?? '';
+      String cardSuit =
+          (originalCardData[DatabaseHelper.cardSuit] as String?) ?? '';
+      String cardImageUrl =
+          (originalCardData[DatabaseHelper.cardImageUrl] as String?) ?? '';
+
+      // Debugging: Check the values before deleting
+      print(
+          "Moving card - ID: $cardId, Name: $cardName, Suit: $cardSuit, Image URL: $cardImageUrl");
+
+      // Delete the original card
+      await deleteCard(cardId);
+
+      // Insert a new card into the new folder with the original values
+      await insertCard(cardName, cardSuit, cardImageUrl, newFolderId);
+    } else {
+      print("Card not found");
+    }
+  }
 }
