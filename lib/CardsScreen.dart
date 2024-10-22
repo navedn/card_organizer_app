@@ -172,6 +172,34 @@ class _CardsScreenState extends State<CardsScreen> {
     );
   }
 
+  void _showDeleteConfirmationDialog(Map<String, dynamic> card) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Delete Card"),
+          content: Text("Are you sure you want to delete this card?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await widget.dbHelper.deleteCard(card[DatabaseHelper.cardId]);
+                _refreshUI(); // Refresh the UI after deletion
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text("Delete"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -201,9 +229,18 @@ class _CardsScreenState extends State<CardsScreen> {
                 var card = cards[index];
                 return ListTile(
                   title: Text(card[DatabaseHelper.cardName]),
-                  trailing: IconButton(
-                    icon: Icon(Icons.edit),
-                    onPressed: () => _showRenameDialog(card),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () => _showRenameDialog(card),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () => _showDeleteConfirmationDialog(card),
+                      ),
+                    ],
                   ),
                 );
               },
