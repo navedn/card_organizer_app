@@ -50,42 +50,46 @@ class _CardsScreenState extends State<CardsScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Edit Card"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: "New Card Name"),
-              ),
-              FutureBuilder<List<Map<String, dynamic>>>(
-                future: _foldersFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Text('No Folders Found');
-                  } else {
-                    var folders = snapshot.data!;
-                    return DropdownButton<int>(
-                      value: selectedFolderId,
-                      onChanged: (int? newValue) {
-                        setState(() {
-                          selectedFolderId = newValue;
-                        });
-                      },
-                      items: folders.map<DropdownMenuItem<int>>((folder) {
-                        return DropdownMenuItem<int>(
-                          value: folder[DatabaseHelper.folderId],
-                          child: Text(folder[DatabaseHelper.folderName]),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(labelText: "New Card Name"),
+                  ),
+                  FutureBuilder<List<Map<String, dynamic>>>(
+                    future: _foldersFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Text('No Folders Found');
+                      } else {
+                        var folders = snapshot.data!;
+                        return DropdownButton<int>(
+                          value: selectedFolderId,
+                          onChanged: (int? newValue) {
+                            setState(() {
+                              selectedFolderId = newValue;
+                            });
+                          },
+                          items: folders.map<DropdownMenuItem<int>>((folder) {
+                            return DropdownMenuItem<int>(
+                              value: folder[DatabaseHelper.folderId],
+                              child: Text(folder[DatabaseHelper.folderName]),
+                            );
+                          }).toList(),
                         );
-                      }).toList(),
-                    );
-                  }
-                },
-              ),
-            ],
+                      }
+                    },
+                  ),
+                ],
+              );
+            },
           ),
           actions: [
             TextButton(
