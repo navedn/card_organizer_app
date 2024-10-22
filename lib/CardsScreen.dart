@@ -1,5 +1,3 @@
-// cards_screen.dart
-
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
 
@@ -39,15 +37,11 @@ class _CardsScreenState extends State<CardsScreen> {
   }
 
   void _showRenameDialog(Map<String, dynamic> card) {
-    // Use a TextEditingController with the correct card name
-    TextEditingController nameController = TextEditingController(
-      text: card[DatabaseHelper.cardName] as String? ?? '',
-    );
+    TextEditingController nameController =
+        TextEditingController(text: card[DatabaseHelper.cardName]);
 
-    // New variable to hold the selected folder ID
     int? selectedFolderId = card[DatabaseHelper.cardFolderId];
 
-    // Get all folders from the database
     Future<List<Map<String, dynamic>>> _foldersFuture =
         widget.dbHelper.getFolders();
 
@@ -75,9 +69,8 @@ class _CardsScreenState extends State<CardsScreen> {
                   } else {
                     var folders = snapshot.data!;
                     return DropdownButton<int>(
-                      value: selectedFolderId, // Display the current folder ID
+                      value: selectedFolderId,
                       onChanged: (int? newValue) {
-                        // Update the selected folder ID
                         setState(() {
                           selectedFolderId = newValue;
                         });
@@ -103,12 +96,10 @@ class _CardsScreenState extends State<CardsScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                // Rename the card using the correct ID
                 await widget.dbHelper.renameCard(
-                  card[DatabaseHelper.cardId], // Use the card ID passed in
+                  card[DatabaseHelper.cardId],
                   nameController.text,
                 );
-                // Move to the selected folder only if it has changed
                 if (selectedFolderId != card[DatabaseHelper.cardFolderId]) {
                   await widget.dbHelper.moveCardToDifferentFolder(
                     card[DatabaseHelper.cardId],
@@ -126,11 +117,72 @@ class _CardsScreenState extends State<CardsScreen> {
     );
   }
 
+  void _showAddCardDialog() {
+    TextEditingController nameController = TextEditingController();
+    TextEditingController imageUrlController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Add New Card"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(labelText: "Card Name"),
+              ),
+              TextField(
+                controller: imageUrlController,
+                decoration: InputDecoration(labelText: "Card Image URL"),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                String cardName = nameController.text;
+                String cardImageUrl = imageUrlController.text;
+                String cardSuit =
+                    widget.folderName; // Set cardSuit as folder name
+
+                // Add the card to the folder
+                await widget.dbHelper.addCardToFolder(
+                  cardName,
+                  cardImageUrl,
+                  widget.folderID,
+                  cardSuit,
+                );
+
+                _refreshUI(); // Refresh the UI after adding the card
+                Navigator.of(context).pop();
+              },
+              child: Text("Add"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Cards in ${widget.folderName}"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () => _showAddCardDialog(),
+          ),
+        ],
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _cardsFuture,
@@ -150,9 +202,8 @@ class _CardsScreenState extends State<CardsScreen> {
                 return ListTile(
                   title: Text(card[DatabaseHelper.cardName]),
                   trailing: IconButton(
-                    icon: Icon(Icons.edit), // Edit icon
-                    onPressed: () =>
-                        _showRenameDialog(card), // Show rename dialog
+                    icon: Icon(Icons.edit),
+                    onPressed: () => _showRenameDialog(card),
                   ),
                 );
               },

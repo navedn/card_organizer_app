@@ -314,4 +314,16 @@ class DatabaseHelper {
       print("Card not found");
     }
   }
+
+  Future<void> addCardToFolder(String cardName, String cardImageUrl,
+      int folderId, String cardSuit) async {
+    final Map<String, dynamic> cardData = {
+      DatabaseHelper.cardName: cardName,
+      DatabaseHelper.cardImageUrl: cardImageUrl,
+      DatabaseHelper.cardSuit: cardSuit,
+      DatabaseHelper.cardFolderId: folderId,
+    };
+
+    await _db.insert(cardsTable, cardData);
+  }
 }
