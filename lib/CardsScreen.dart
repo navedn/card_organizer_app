@@ -232,6 +232,23 @@ class _CardsScreenState extends State<CardsScreen> {
               itemBuilder: (context, index) {
                 var card = cards[index];
                 return ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 200,
+                    child: card[DatabaseHelper.cardImageUrl] != null &&
+                            card[DatabaseHelper.cardImageUrl].isNotEmpty
+                        ? Image.asset(
+                            card[DatabaseHelper.cardImageUrl],
+                            fit: BoxFit
+                                .cover, // This will cover the whole container without distorting
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(Icons.image,
+                                  size: 50); // Fallback icon
+                            },
+                          )
+                        : Icon(Icons.image, size: 50), // Fallback icon
+                  ),
+// Fallback icon
                   title: Text(card[DatabaseHelper.cardName]),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
