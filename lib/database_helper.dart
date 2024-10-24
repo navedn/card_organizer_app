@@ -326,4 +326,19 @@ class DatabaseHelper {
 
     await _db.insert(cardsTable, cardData);
   }
+
+  // Method to get the count of cards in a folder
+  Future<int> getCardCountInFolder(int folderId) async {
+    var result = await _db.rawQuery(
+        'SELECT COUNT(*) FROM $cardsTable WHERE $cardFolderId = ?', [folderId]);
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+// Method to get the first card image URL in a folder
+  Future<String?> getFirstCardImageInFolder(int folderId) async {
+    var result = await _db.rawQuery(
+        'SELECT $cardImageUrl FROM $cardsTable WHERE $cardFolderId = ? LIMIT 1',
+        [folderId]);
+    return result.isNotEmpty ? result.first[cardImageUrl] as String? : null;
+  }
 }

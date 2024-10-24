@@ -161,38 +161,75 @@ class _FoldersScreenState extends State<FoldersScreen> {
               itemCount: folders.length,
               itemBuilder: (context, index) {
                 var folder = folders[index];
-                return ListTile(
-                  title: Text(folder[DatabaseHelper.folderName]),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () => _updateFolder(
-                          folder[DatabaseHelper.folderId],
-                          folder[DatabaseHelper.folderName],
+
+                return FutureBuilder(
+                  future: Future.wait([
+                    widget.dbHelper
+                        .getCardCountInFolder(folder[DatabaseHelper.folderId]),
+                    widget.dbHelper.getFirstCardImageInFolder(
+                        folder[DatabaseHelper.folderId]),
+                  ]),
+                  builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return ListTile(
+                        title: Text(folder[DatabaseHelper.folderName]),
+                        subtitle: Text('Loading card info...'),
+                      );
+                    } else if (snapshot.hasError) {
+                      return ListTile(
+                        title: Text(folder[DatabaseHelper.folderName]),
+                        subtitle: Text('Error loading card info'),
+                      );
+                    } else {
+                      int cardCount = snapshot.data![0] as int;
+                      String? firstCardImageUrl = snapshot.data![1] as String?;
+
+                      return ListTile(
+                        leading: firstCardImageUrl != null
+                            ? Image.asset(
+                                firstCardImageUrl,
+                                fit: BoxFit
+                                    .cover, // This will cover the whole container without distorting
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Icon(Icons.image,
+                                      size: 50); // Fallback icon
+                                },
+                              )
+                            : Icon(Icons.image, size: 50),
+                        title: Text(folder[DatabaseHelper.folderName]),
+                        subtitle: Text('$cardCount cards'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.edit),
+                              onPressed: () => _updateFolder(
+                                folder[DatabaseHelper.folderId],
+                                folder[DatabaseHelper.folderName],
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () => _deleteFolder(
+                                folder[DatabaseHelper.folderId],
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () => _deleteFolder(
-                          folder[DatabaseHelper.folderId],
-                        ),
-                      ),
-                    ],
-                  ),
-                  onTap: () {
-                    // Navigate to CardsScreen with the folderID and folderName
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CardsScreen(
-                          folderID: folder[DatabaseHelper.folderId],
-                          folderName: folder[DatabaseHelper.folderName],
-                          dbHelper: widget.dbHelper,
-                        ),
-                      ),
-                    );
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CardsScreen(
+                                folderID: folder[DatabaseHelper.folderId],
+                                folderName: folder[DatabaseHelper.folderName],
+                                dbHelper: widget.dbHelper,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    }
                   },
                 );
               },
