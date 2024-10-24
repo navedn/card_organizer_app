@@ -216,8 +216,8 @@ class _FoldersScreenState extends State<FoldersScreen> {
                             ),
                           ],
                         ),
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          result = await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => CardsScreen(
@@ -227,6 +227,11 @@ class _FoldersScreenState extends State<FoldersScreen> {
                               ),
                             ),
                           );
+
+                          debugPrint(result);
+                          setState(() {
+                            _loadFolders(); // Refresh the folder list
+                          });
                         },
                       );
                     }
